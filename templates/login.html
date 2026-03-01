@@ -1,101 +1,626 @@
-<!doctype html>
-<html>
-  <head>
-    <title>Company Secure Login</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mini IDS — Intrusion Detection System</title>
 
-    <style>
-      body {
-        margin: 0;
-        padding: 0;
-        height: 100vh;
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-        font-family: Arial, sans-serif;
-        color: #e5e7eb;
+  <style>
+    /* ═══════════════════════════════════════════════
+       DESIGN SYSTEM
+    ═══════════════════════════════════════════════ */
+    :root {
+      --bg:         #05080f;
+      --bg2:        #0a1020;
+      --bg3:        #0e1830;
+      --border:     #1a2a4a;
+      --border-glow:#2a4a8a;
 
-        display: flex;
-        justify-content: center;
-        align-items: center;
+      --safe:       #00e5a0;
+      --safe-dim:   #004433;
+      --warn:       #f5a623;
+      --warn-dim:   #3a2600;
+      --alert:      #ff3860;
+      --alert-dim:  #3a0010;
 
-        background-image: url("{{ url_for('static', filename='bg.png') }}");
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-      }
+      --text:       #c8d8f0;
+      --text-dim:   #5a7090;
+      --accent:     #4488ff;
+      --accent2:    #00c8ff;
 
-      /* Dark overlay so text is readable */
-      body::before {
-        content: "";
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.6);
-        z-index: -1;
-      }
+      --mono: "Share Tech Mono", monospace;
+      --ui:   "Rajdhani", sans-serif;
 
-      .box {
-        background: #082351;
-        padding: 30px;
-        border-radius: 8px;
-        width: 350px;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
-      }
+      --radius: 4px;
+    }
 
-      h2 {
-        color: #fd1fa7;
-        text-align: center;
-      }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-      input {
-        width: 90%;
-        padding: 10px;
-        margin: 10px 0;
-        border-radius: 4px;
-        border: none;
-      }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--ui);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem 4rem;
+      position: relative;
+      overflow-x: hidden;
+    }
 
-      button {
-        width: 95%;
-        padding: 10px;
-        background: #b02595;
-        border: none;
-        border-radius: 4px;
-        font-weight: bold;
-        cursor: pointer;
-      }
+    /* Scanline effect */
+    body::after {
+      content: "";
+      position: fixed; inset: 0;
+      background: repeating-linear-gradient(
+        0deg, transparent, transparent 2px,
+        rgba(0,20,60,0.08) 2px, rgba(0,20,60,0.08) 4px
+      );
+      pointer-events: none;
+      z-index: 999;
+    }
 
-      .alert {
-        margin-top: 15px;
-        padding: 10px;
-        background: #7f1d1d;
-        border-left: 5px solid #ef4444;
-        font-family: monospace;
-      }
+    /* Grid bg */
+    body::before {
+      content: "";
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(68,136,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(68,136,255,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
 
-      .safe {
-        background: #064e3b;
-        border-left-color: #22c55e;
-      }
-    </style>
-  </head>
+    /* ═══════════════════════════════════════════════
+       HEADER
+    ═══════════════════════════════════════════════ */
+    header {
+      width: 100%;
+      max-width: 860px;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
 
-  <body>
-    <div class="box">
-      <h2>Company Login</h2>
+    .logo {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--accent);
+      line-height: 1.1;
+      letter-spacing: 0.05em;
+      white-space: pre;
+      opacity: 0.8;
+    }
 
-      <form method="POST">
-        <input type="text" name="username" placeholder="Username" />
-        <input type="text" name="password" placeholder="Password" />
-        <button type="submit">Login</button>
-      </form>
+    .header-text h1 {
+      font-family: var(--ui);
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #fff;
+    }
 
-      {% if alert %}
-      <div class="alert {% if alert == 'No attack detected' %}safe{% endif %}">
-        <strong>Result:</strong><br />
-        {{ alert }}<br /><br />
-        <strong>Payload:</strong><br />
-        {{ payload }}
-      </div>
-      {% endif %}
+    .header-text p {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      letter-spacing: 0.1em;
+      margin-top: 2px;
+    }
+
+    .header-badge {
+      margin-left: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+    }
+
+    .badge {
+      font-family: var(--mono);
+      font-size: 0.55rem;
+      letter-spacing: 0.15em;
+      padding: 2px 8px;
+      border: 1px solid;
+      border-radius: 2px;
+    }
+    .badge.toc  { color: var(--accent2); border-color: var(--accent2); }
+    .badge.live { color: var(--safe);    border-color: var(--safe);
+                  animation: blink 1.5s step-end infinite; }
+    @keyframes blink { 50% { opacity: 0.3 } }
+
+    /* ═══════════════════════════════════════════════
+       LAYOUT
+    ═══════════════════════════════════════════════ */
+    .layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 1.5rem;
+      width: 100%;
+      max-width: 860px;
+      align-items: start;
+    }
+
+    @media (max-width: 700px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    /* ═══════════════════════════════════════════════
+       PANEL (shared card style)
+    ═══════════════════════════════════════════════ */
+    .panel {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: var(--bg3);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .panel-header .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 6px var(--accent);
+    }
+
+    .panel-title {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent2);
+    }
+
+    .panel-body { padding: 18px; }
+
+    /* ═══════════════════════════════════════════════
+       LOGIN FORM
+    ═══════════════════════════════════════════════ */
+    .field + .field { margin-top: 10px; }
+
+    label {
+      display: block;
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      color: var(--text-dim);
+      margin-bottom: 5px;
+      text-transform: uppercase;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 9px 12px;
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent);
+    }
+
+    .btn-submit {
+      margin-top: 16px;
+      width: 100%;
+      padding: 11px;
+      background: transparent;
+      border: 1px solid var(--accent);
+      border-radius: var(--radius);
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-submit:hover {
+      background: var(--accent);
+      color: var(--bg);
+      box-shadow: 0 0 20px rgba(68,136,255,0.4);
+    }
+
+    /* ═══════════════════════════════════════════════
+       FINAL VERDICT BANNER
+    ═══════════════════════════════════════════════ */
+    .verdict-banner {
+      margin-top: 1rem;
+      padding: 14px 18px;
+      border-radius: var(--radius);
+      border-left: 4px solid;
+      font-family: var(--mono);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .verdict-banner.safe    { border-color: var(--safe);  background: var(--safe-dim); }
+    .verdict-banner.warn    { border-color: var(--warn);  background: var(--warn-dim); }
+    .verdict-banner.intrude { border-color: var(--alert); background: var(--alert-dim);
+                               animation: pulse-border 0.8s ease-in-out infinite; }
+
+    @keyframes pulse-border {
+      0%,100% { box-shadow: 0 0 0 0 transparent; }
+      50%      { box-shadow: 0 0 12px 2px rgba(255,56,96,0.4); }
+    }
+
+    .verdict-icon { font-size: 1.3rem; }
+
+    .verdict-code {
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+    .verdict-banner.safe    .verdict-code { color: var(--safe); }
+    .verdict-banner.warn    .verdict-code { color: var(--warn); }
+    .verdict-banner.intrude .verdict-code { color: var(--alert); }
+
+    .verdict-payload {
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      word-break: break-all;
+      margin-top: 2px;
+    }
+
+    /* ═══════════════════════════════════════════════
+       ANALYSIS PANEL (right column)
+    ═══════════════════════════════════════════════ */
+    .stage-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .stage {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .stage-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: var(--bg3);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .stage-header:hover { background: #121e38; }
+
+    .stage-name {
+      font-family: var(--ui);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      color: var(--text);
+    }
+
+    .stage-tag {
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      letter-spacing: 0.15em;
+      padding: 2px 8px;
+      border-radius: 2px;
+      text-transform: uppercase;
+      border: 1px solid;
+    }
+
+    .tag-safe    { color: var(--safe);  border-color: var(--safe-dim);  background: rgba(0,229,160,0.07); }
+    .tag-warn    { color: var(--warn);  border-color: var(--warn-dim);  background: rgba(245,166,35,0.07); }
+    .tag-alert   { color: var(--alert); border-color: var(--alert-dim); background: rgba(255,56,96,0.07); }
+
+    .stage-details {
+      padding: 10px 12px;
+      display: none;
+      border-top: 1px solid var(--border);
+    }
+
+    .stage.open .stage-details { display: block; }
+
+    .detail-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(26,42,74,0.6);
+      gap: 8px;
+    }
+    .detail-row:last-child { border-bottom: none; }
+
+    .detail-name {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      flex: 1;
+    }
+
+    .detail-verdict {
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      padding: 2px 7px;
+      border-radius: 2px;
+      letter-spacing: 0.1em;
+      white-space: nowrap;
+    }
+
+    .dv-safe    { background: rgba(0,229,160,0.12);  color: var(--safe);  }
+    .dv-warn    { background: rgba(245,166,35,0.12); color: var(--warn);  }
+    .dv-alert   { background: rgba(255,56,96,0.15);  color: var(--alert); }
+
+    /* ═══════════════════════════════════════════════
+       SIGNAL BUS
+    ═══════════════════════════════════════════════ */
+    .signal-bus {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .signal-chip {
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      padding: 3px 8px;
+      border-radius: 2px;
+      border: 1px solid;
+    }
+
+    .chip-0 { color: var(--safe);  border-color: rgba(0,229,160,0.3);  background: rgba(0,229,160,0.06); }
+    .chip-1 { color: var(--warn);  border-color: rgba(245,166,35,0.3);  background: rgba(245,166,35,0.06); }
+    .chip-2 { color: var(--alert); border-color: rgba(255,56,96,0.3);  background: rgba(255,56,96,0.06); }
+
+    .meta-arrow {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+    }
+
+    /* ═══════════════════════════════════════════════
+       AUTOMATA INFO SIDEBAR
+    ═══════════════════════════════════════════════ */
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 1rem;
+    }
+
+    .info-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px;
+    }
+
+    .info-card h4 {
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      color: var(--accent2);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .info-card p {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+
+    /* ═══════════════════════════════════════════════
+       IDLE STATE (no analysis yet)
+    ═══════════════════════════════════════════════ */
+    .idle-msg {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      text-align: center;
+      padding: 40px 20px;
+      line-height: 2;
+    }
+
+    .idle-msg .big {
+      font-size: 2rem;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    /* ═══════════════════════════════════════════════
+       FOOTER
+    ═══════════════════════════════════════════════ */
+    footer {
+      margin-top: 3rem;
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      color: var(--text-dim);
+      letter-spacing: 0.15em;
+      text-align: center;
+    }
+
+    /* ═══════════════════════════════════════════════
+       CHEVRON toggle
+    ═══════════════════════════════════════════════ */
+    .chevron {
+      font-size: 0.6rem;
+      color: var(--text-dim);
+      transition: transform 0.2s;
+    }
+    .stage.open .chevron { transform: rotate(180deg); }
+  </style>
+</head>
+
+<body>
+
+  <!-- ══ HEADER ══════════════════════════════════════════════════════ -->
+  <header>
+    <div class="logo">╔═══╗
+║IDS║
+╚═══╝</div>
+    <div class="header-text">
+      <h1>Mini IDS — Intrusion Detection System</h1>
+      <p>TOC COURSE PROJECT &nbsp;·&nbsp; DFA / NFA / PDA PIPELINE</p>
     </div>
-  </body>
+    <div class="header-badge">
+      <span class="badge toc">THEORY OF COMPUTATION</span>
+      <span class="badge live">● LIVE</span>
+    </div>
+  </header>
+
+  <!-- ══ TWO-COLUMN LAYOUT ══════════════════════════════════════════ -->
+  <div class="layout">
+
+    <!-- LEFT: login + verdict -->
+    <div>
+      <div class="panel">
+        <div class="panel-header">
+          <div class="dot"></div>
+          <span class="panel-title">Payload Input</span>
+        </div>
+        <div class="panel-body">
+          <form method="POST">
+            <div class="field">
+              <label>Username</label>
+              <input type="text" name="username" placeholder="e.g. admin' --" autocomplete="off" />
+            </div>
+            <div class="field">
+              <label>Password</label>
+              <input type="text" name="password" placeholder="e.g. ' OR 1=1" autocomplete="off" />
+            </div>
+            <button class="btn-submit" type="submit">▶ &nbsp; ANALYZE PAYLOAD</button>
+          </form>
+
+          {% if analysis %}
+          {% set v = analysis.verdict %}
+          <div class="verdict-banner {{ 'intrude' if v == 2 else 'warn' if v == 1 else 'safe' }}">
+            <span class="verdict-icon">{{ '🚨' if v == 2 else '⚠️' if v == 1 else '✅' }}</span>
+            <span class="verdict-code">
+              {{ '⬛ INTRUSION DETECTED' if v == 2 else '▲ SUSPICIOUS ACTIVITY' if v == 1 else '◉ NO THREAT DETECTED' }}
+            </span>
+            <span class="verdict-payload">{{ analysis.payload }}</span>
+          </div>
+
+          <!-- Signal bus visualization -->
+          <div class="signal-bus">
+            {% for s in analysis.signals %}
+            <span class="signal-chip chip-{{ s }}">{{ s }}</span>
+            {% endfor %}
+            <span class="meta-arrow">→ META: {{ analysis.verdict }}</span>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Info cards about automata types -->
+      <div class="info-grid">
+        <div class="info-card">
+          <h4>DFA</h4>
+          <p>Deterministic Finite Automaton. Single-pass exact pattern match. O(n) time.</p>
+        </div>
+        <div class="info-card">
+          <h4>NFA</h4>
+          <p>Non-deterministic FA. Tracks multiple states to catch obfuscated patterns.</p>
+        </div>
+        <div class="info-card">
+          <h4>PDA</h4>
+          <p>Pushdown Automaton. Stack-based detection of nested &lt;script&gt; tags.</p>
+        </div>
+        <div class="info-card">
+          <h4>Meta-DFA</h4>
+          <p>Hierarchical DFA composition over sub-detector output alphabet {0,1,2}.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: detailed analysis -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="dot"></div>
+        <span class="panel-title">Detection Pipeline — Stage Analysis</span>
+      </div>
+      <div class="panel-body">
+
+        {% if analysis %}
+        <div class="stage-list">
+          {% for stage in analysis.stages %}
+          {% set v = stage.verdict %}
+          {% set cls = 'alert' if v == 2 else 'warn' if v == 1 else 'safe' %}
+          <div class="stage {{ 'open' if v > 0 else '' }}" onclick="this.classList.toggle('open')">
+            <div class="stage-header">
+              <span class="stage-name">
+                {{ loop.index }}.&nbsp; {{ stage.label }}
+              </span>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span class="stage-tag tag-{{ cls }}">
+                  {{ 'INTRUSION' if v == 2 else 'SUSPICIOUS' if v == 1 else 'SAFE' }}
+                </span>
+                <span class="chevron">▼</span>
+              </div>
+            </div>
+
+            <div class="stage-details">
+              {% for d in stage.details %}
+              {% set dv = d.verdict %}
+              {% set dc = 'alert' if dv == 2 else 'warn' if dv == 1 else 'safe' %}
+              <div class="detail-row">
+                <span class="detail-name">{{ d.name }}</span>
+                <span class="detail-verdict dv-{{ dc }}">{{ d.label }}</span>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        {% else %}
+
+        <div class="idle-msg">
+          <span class="big">⟨ σ ⟩</span>
+          AWAITING INPUT PAYLOAD<br />
+          SUBMIT A LOGIN ATTEMPT TO<br />
+          RUN THE DETECTION PIPELINE
+        </div>
+
+        {% endif %}
+      </div>
+    </div>
+
+  </div><!-- end .layout -->
+
+  <footer>MINI-IDS &nbsp;·&nbsp; THEORY OF COMPUTATION PROJECT &nbsp;·&nbsp; DFA / NFA / PDA COMPOSITION</footer>
+
+  <script>
+    // Stages with verdict > 0 start open; clicking toggles them.
+    // The class toggle is done inline via onclick. Nothing else needed.
+  </script>
+</body>
 </html>
