@@ -4,7 +4,7 @@
 Theory of Computation
 
 ## Contributors
-- Contributor 1
+- [Meijeevan K.T](https://github.com/MEIJEEVAN)
 - Contributor 2
 - Contributor 3
 
@@ -51,4 +51,4 @@ Mini_IDS/
 
 ---
 
-_Last updated: 2026-03-04 07:29:49 UTC_
+_Last updated: 2026-03-04 07:38:32 UTC_
