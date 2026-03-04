@@ -1,9 +1,6 @@
 """
 MetaController — hierarchical DFA composition.
 
-Treats outputs of all sub-detectors as an alphabet {0, 1, 2} and
-transitions through a top-level DFA to produce a single final verdict.
-
 Formal definition:
     M_meta = (Q, Σ, δ, q0, F)
 
@@ -29,19 +26,14 @@ class MetaController:
     def __init__(self):
         self.state = self.SAFE
 
-    # δ : Q × Σ → Q
     def _transition(self, signal: int) -> None:
         if signal == self.ALERT:
             self.state = self.ALERT
         elif signal == self.WARNING and self.state == self.SAFE:
             self.state = self.WARNING
-        # signal == SAFE → no state change
 
     def decide(self, signals: list[int]) -> int:
-        """
-        Reset to q0 and process the full signal list.
-        Returns the final state (verdict).
-        """
+        """Reset to q0 and process the full signal list. Returns final verdict."""
         self.state = self.SAFE
         for s in signals:
             self._transition(s)

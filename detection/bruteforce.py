@@ -24,16 +24,11 @@ class BruteForceDetector:
         self.attempts: dict[str, list[float]] = {}
 
     def record(self, key: str) -> int:
-        """
-        Record one attempt from *key* (IP address) and return the verdict.
-        """
+        """Record one attempt from *key* (IP address) and return the verdict."""
         now = time.time()
         bucket = self.attempts.setdefault(key, [])
         bucket.append(now)
-
-        # Slide the window
         self.attempts[key] = [t for t in bucket if now - t <= self.WINDOW]
-
         count = len(self.attempts[key])
         if count >= self.ALERT_THRESHOLD:
             return self.ALERT

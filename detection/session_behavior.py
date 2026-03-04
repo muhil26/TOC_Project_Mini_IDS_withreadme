@@ -22,9 +22,7 @@ class SessionBehaviorDetector:
         now    = time.time()
         bucket = self.sessions.setdefault(session_id, [])
         bucket.append(now)
-
         self.sessions[session_id] = [t for t in bucket if now - t <= self.WINDOW]
-
         count = len(self.sessions[session_id])
         if count > self.ALERT_LIMIT:
             return self.ALERT

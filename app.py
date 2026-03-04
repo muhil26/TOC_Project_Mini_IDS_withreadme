@@ -20,15 +20,15 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 from flask import Flask, render_template, request
 
-from detectors.dfa_alerts  import detect_attack, ATTACK_DFAS
-from detectors.nfa_alerts  import detect_nfa
-from detectors.pda_alerts  import detect_pda
-from bruteforce            import BruteForceDetector
-from command_injection     import detect_command, CMD_DFAS
-from login_bypass          import LoginBypassDetector
-from meta_controller       import MetaController
-from path_traversal        import detect_path, PATH_DFAS
-from session_behavior      import SessionBehaviorDetector
+from detectors.dfa_alerts        import detect_attack, ATTACK_DFAS
+from detectors.nfa_alerts        import detect_nfa
+from detectors.pda_alerts        import detect_pda
+from detection.bruteforce        import BruteForceDetector
+from detection.command_injection import detect_command, CMD_DFAS
+from detection.login_bypass      import LoginBypassDetector
+from detection.meta_controller   import MetaController
+from detection.path_traversal    import detect_path, PATH_DFAS
+from detection.session_behavior  import SessionBehaviorDetector
 
 app = Flask(__name__)
 
@@ -77,9 +77,7 @@ def _print_pda_trace(payload, pda_trace, pda_v):
     print(f"  Input  : {payload[:72]}")
     print(f"  Stack alphabet G = {{S}}  where S marks an open <script>")
     print(f"  Stack operations (tag events only):")
-
     tag_ops = [(a, t, s) for a, t, s in pda_trace if a != "READ"]
-
     if not tag_ops:
         print("    (no <script> tags in input -- nothing pushed or popped)")
     else:
@@ -93,7 +91,6 @@ def _print_pda_trace(payload, pda_trace, pda_v):
                 print(f"    FAIL POP {repr(token):<36} stack was EMPTY -> ALERT")
             elif action == "UNCLOSED":
                 print(f"    UNCLOSED {token:<36} stack -> {stack_str} -> ALERT")
-
     if pda_v == 2:
         print(f"  End state : stack non-empty or unmatched pop  -> ALERT")
     else:
