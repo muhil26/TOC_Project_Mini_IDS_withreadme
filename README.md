@@ -25,19 +25,33 @@ This project implements a Mini Intrusion Detection System (IDS) using various ty
 ## Project Structure
 ```
 Mini_IDS/
-├── app/
-│   ├── __init__.py
-│   ├── routes.py
-│   └── templates/
-│       └── index.html
-├── static/
-│   ├── css/
-│   └── js/
-├── models/
-│   ├── nfa.py
-│   ├── dfa.py
-│   └── pda.py
-└── main.py
+├── app.py
+├── automata
+│   ├── dfa.py
+│   ├── __init__.py
+│   ├── nfa.py
+│   └── pda.py
+├── detection
+│   ├── bruteforce.py
+│   ├── command_injection.py
+│   ├── __init__.py
+│   ├── login_bypass.py
+│   ├── meta_controller.py
+│   ├── path_traversal.py
+│   ├── port_scan.py
+│   ├── session_behavior.py
+│   └── supervisor.py
+├── detectors
+│   ├── dfa_alerts.py
+│   ├── __init__.py
+│   ├── nfa_alerts.py
+│   └── pda_alerts.py
+├── docs
+├── main.py
+├── README.md
+├── requirements.txt
+└── templates
+    └── login.html
 ```
 
 ## Attack Patterns Detected
