@@ -4,6 +4,7 @@
 Theory of Computation
 
 ## Contributors
+https://github.com/MEIJEEVAN/TOC_Project_Mini_IDS/graphs/contributors
 - [Meijeevan K.T](https://github.com/MEIJEEVAN)
 - [Shanmuka Priyan V](https://github.com/ShanmukaPriyan-V2025)
 - [Muhilan S R](https://github.com/muhil26)
