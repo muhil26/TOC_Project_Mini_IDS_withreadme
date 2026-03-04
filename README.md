@@ -56,15 +56,58 @@ Mini_IDS/
     └── login.html
 ```
 
-## Attack Patterns Detected
-- Brute Force
-- Command Injection
-- Login Bypass
-- Path Traversal
-- Port Scan
-- Session Anomaly
-- SQL Injection via DFA/NFA/PDA
+---
+
+## TOC Concepts Applied
+
+- **Finite Automata (DFA/NFA)** — each detector models attack patterns as state machines
+- **Regular Languages** — attack signatures expressed as regular expressions / automata transitions
+- **Formal Language Theory** — inputs are treated as strings over an alphabet, accepted or rejected by automata
 
 ---
 
+## Attack Patterns Detected
+| Attack | File | Description |
+|---|---|---|
+| Brute Force | `bruteforce.py` | Repeated failed login attempts |
+| Command Injection | `command_injection.py` | Malicious shell commands in inputs |
+| Login Bypass | `login_bypass.py` | SQL/logic-based authentication bypass |
+| Path Traversal | `path_traversal.py` | Directory traversal (`../`) attempts |
+| Port Scan | `port_scan.py` | Sequential port probing behavior |
+| Session Hijacking | `session_behavior.py` | Anomalous session token/cookie behavior |
+
+---
+
+## Architecture
+
+```
+User Input / HTTP Request
+        │
+        ▼
+   [ app.py ]  ←── Flask Web Interface
+        │
+        ▼
+  [ main.py ]  ←── Entry point / orchestrator
+        │
+        ▼
+[ meta_controller.py ] ←── Coordinates all detectors
+        │
+        ▼
+[ supervisor.py ] ←── Final alert decision logic
+        │
+   ┌────┴─────┬──────────┬────────────┐
+   ▼          ▼          ▼            ▼
+bruteforce  cmd_inj  path_trav   (etc.)
+        │
+        ▼
+  [ automata/ ] ←── DFA/NFA definitions
+```
+
+---
+
+## License
+
+This project was developed as an academic project for a Theory of Computation course. Feel free to use it for learning purposes.
+
+---
 _Last updated: 2026-03-04 07:40:15 UTC_
