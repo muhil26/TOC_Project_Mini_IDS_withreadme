@@ -14,10 +14,10 @@ Theory of Computation
 - PDA (Pushdown Automaton)
 
 ## Tech Stack
-- Python (64.2%)
-- HTML (35.8%)
-- Flask
-- Scapy
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![HTML](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
+![Flask](https://img.shields.io/badge/Flask-000000?logo=flask&logoColor=white)
+![Scapy](https://img.shields.io/badge/Flask-000000?logo=flask&logoColor=white)
 
 ## Project Overview
 This project implements a Mini Intrusion Detection System (IDS) using various types of automata. It aims to detect abnormal patterns in network traffic and identify potential security threats. The system can classify different types of attacks based on predefined rules and patterns.
