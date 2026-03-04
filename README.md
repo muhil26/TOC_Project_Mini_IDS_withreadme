@@ -55,7 +55,34 @@ Mini_IDS/
 └── templates
     └── login.html
 ```
+---
 
+### Prerequisites
+
+- Python 3.8+
+- pip
+
+### Installation
+
+```bash
+git clone https://github.com/MEIJEEVAN/TOC_Project_Mini_IDS.git
+cd TOC_Project_Mini_IDS
+pip install -r requirements.txt
+```
+
+### Running the Web App
+
+```bash
+python app.py
+```
+
+Then open your browser and navigate to `http://localhost:5000`.
+
+### Running Detectors Directly
+
+```bash
+python main.py or sudo venv/bin/python main.py
+```
 ---
 
 ## TOC Concepts Applied
