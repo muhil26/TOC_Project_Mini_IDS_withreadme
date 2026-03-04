@@ -1,5 +1,7 @@
-# Mini IDS using Automata
-
+# **Mini IDS using Automata**
+## OverView
+![webpage](webpage.png)
+![terminal_transitions_of_NFA_DFA_PDA](terminal_NFA_DFA_PDA_Transitions.png)
 ## Course
 Theory of Computation
 
