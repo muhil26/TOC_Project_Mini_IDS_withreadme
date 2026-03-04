@@ -6,7 +6,7 @@ Theory of Computation
 ## Contributors
 - [Meijeevan K.T](https://github.com/MEIJEEVAN)
 - [Shanmuka Priyan V](https://github.com/ShanmukaPriyan-V2025)
-- Contributor 3
+- [Muhilan S R](https://github.com/muhil26)
 
 ## Automata Types
 - NFA (Nondeterministic Finite Automaton)
