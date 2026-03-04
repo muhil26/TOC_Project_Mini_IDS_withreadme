@@ -1,18 +1,13 @@
 """
 SupervisorDFA — Legacy prototype controller.
 
-DEPRECATED: Replaced by MetaController, which models proper hierarchical
-DFA composition over the full sub-detector output alphabet.
+DEPRECATED: Replaced by MetaController.
+Retained for project history and academic comparison.
 
-Retained here for project history and comparison with MetaController.
-
-Differences from MetaController:
-  - Uses a vote-based approach (count of suspicious signals ≥ 2 → WARNING)
-    rather than a proper DFA transition function.
-  - Does not model stateful transitions correctly:
-    δ(WARNING, 1) should stay at WARNING, but this implementation
-    resets and re-counts on every call.
-  - MetaController formalises δ: Q × {0,1,2} → Q properly.
+Key differences from MetaController:
+  - Vote-based approach rather than proper DFA transition function.
+  - Does not correctly model δ(WARNING, 1) → stay at WARNING;
+    instead it resets and re-counts on every call.
 """
 
 
@@ -32,10 +27,8 @@ class SupervisorDFA:
         if 2 in verdicts:
             self.state = self.ALERT
             return self.ALERT
-
         if verdicts.count(1) >= 2:
             self.state = self.WARNING
             return self.WARNING
-
         self.state = self.SAFE
         return self.SAFE
