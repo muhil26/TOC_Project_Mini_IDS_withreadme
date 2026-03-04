@@ -17,7 +17,7 @@ Theory of Computation
 ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![HTML](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
 ![Flask](https://img.shields.io/badge/Flask-F7DF1E?style=for-the-badge&logo=flask&logoColor=black)
-![Scapy](https://img.shields.io/badge/Flask-%23E4405F.svg?&style=for-the-badge&logo=scapy&logoColor=white)
+![Scapy](https://img.shields.io/badge/Scapy-%23E4405F.svg?&style=for-the-badge&logo=scapy&logoColor=white)
 
 ## Project Overview
 This project implements a Mini Intrusion Detection System (IDS) using various types of automata. It aims to detect abnormal patterns in network traffic and identify potential security threats. The system can classify different types of attacks based on predefined rules and patterns.
